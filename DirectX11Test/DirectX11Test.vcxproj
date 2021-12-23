@@ -155,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="exception.h" />
+    <ClInclude Include="keyboard.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="win_main.h" />
   </ItemGroup>

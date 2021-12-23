@@ -50,6 +50,12 @@ public:
 	private:
 		HRESULT HResult;
 	};
-
-
 };
+
+
+
+#define HWND_EXCEPT( Handle ) Window::WindowException(__LINE__, __FILE__, Handle)
+#define HWND_LAST_EXCEPT() Window::WindowException(__LINE__, __FILE__, GetLastError())
+
+
+

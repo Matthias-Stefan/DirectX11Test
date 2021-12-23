@@ -3,10 +3,8 @@
 #include <sstream>
 
 Exception::Exception(int Line, const char* File)
-{
-	this->Line = Line;
-	this->File = File;
-}
+	: Line(Line), File(File)
+{}
 
 const char* Exception::what() const
 {

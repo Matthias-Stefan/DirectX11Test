@@ -1,16 +1,39 @@
 #include "window.h"
 
 #include <sstream>
-
+#include <stdlib.h>
 
 Window::Window(int Width, int Height, const char* Name)
 {
+	try
+	{
+		// invoke App.Go()
+		// return EXIT_SUCCESS;
+	}
+	catch (const WindowException& Except)
+	{
+		MessageBox(nullptr, Except.what(), Except.GetType(), MB_OK | MB_ICONEXCLAMATION);
+	}
+	catch (const std::exception& Except)
+	{
+		MessageBox(nullptr, Except.what(), "Standard Exception", MB_OK | MB_ICONEXCLAMATION);
+	}
+	catch (...)
+	{
+		MessageBox(nullptr, "No details available", "Unknown Exception", MB_OK | MB_ICONEXCLAMATION);
+	}
+
+	// return EXIT_FAILURE; 
+
 	RECT WindowRect;
 	WindowRect.left = 100;
 	WindowRect.right = Width + WindowRect.left;
 	WindowRect.top = 100;
 	WindowRect.bottom = Height + WindowRect.top;
-	AdjustWindowRect(&WindowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
+	if(FAILED(AdjustWindowRect(&WindowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE)))
+	{
+		throw HWND_LAST_EXCEPT();
+	}
 
 	WindowHandle = CreateWindow(
 		WindowClass::GetName(), 
@@ -25,6 +48,13 @@ Window::Window(int Width, int Height, const char* Name)
 		WindowClass::GetInstance(), 
 		this);
 	ShowWindow(WindowHandle, SW_SHOWDEFAULT);
+
+	if (WindowHandle == nullptr)
+	{
+		throw HWND_LAST_EXCEPT();
+	}
+
+
 }
 
 Window::~Window()
@@ -131,15 +161,25 @@ const char* Window::WindowException::GetType() const
 
 std::string Window::WindowException::TranslateErrorCode(HRESULT HResult)
 {
-	return std::string();
+	char* MessageBuffer = nullptr;
+	DWORD MessageLength = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+										nullptr, HResult, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
+										reinterpret_cast<LPTSTR>(&MessageBuffer), 0, nullptr);
+	if (MessageLength == 0)
+	{
+		return "Undefined error code";
+	}
+	std::string ErrorString = MessageBuffer;
+	LocalFree(MessageBuffer);
+	return ErrorString;
 }
 
 HRESULT Window::WindowException::GetErrorCode() const
 {
-	return E_NOTIMPL;
+	return HResult;
 }
 
 std::string Window::WindowException::GetErrorString() const
 {
-	return std::string();
+	return TranslateErrorCode(HResult);
 }
