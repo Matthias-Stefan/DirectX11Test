@@ -136,7 +136,7 @@ std::string Window::WindowException::TranslateErrorCode(HRESULT HResult)
 
 HRESULT Window::WindowException::GetErrorCode() const
 {
-	return E_NOTIMPL;
+	return HResult;
 }
 
 std::string Window::WindowException::GetErrorString() const

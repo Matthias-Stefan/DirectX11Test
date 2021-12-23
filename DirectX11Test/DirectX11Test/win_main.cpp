@@ -1,6 +1,20 @@
 
 #include "win_main.h"
 #include "window.h"
+#include "data_structures.h"
+
+void TestQueue()
+{
+	Queue<int> queue = { 4 };
+	queue.Push(2);
+	queue.Push(3);
+	queue.Push(4);
+	queue.Push(5);
+
+	int ans = queue.Pop();
+
+	int x = 5;
+}
 
 
 int CALLBACK WinMain(HINSTANCE Instance,
@@ -8,6 +22,9 @@ int CALLBACK WinMain(HINSTANCE Instance,
 	LPSTR CommandLine,
 	INT CommandShow)
 {
+	TestQueue();
+
+
 	Window Window_(800, 300, "DirectX11Test");
 
 	MSG Message;

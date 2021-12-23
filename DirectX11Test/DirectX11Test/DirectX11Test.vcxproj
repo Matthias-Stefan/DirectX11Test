@@ -154,6 +154,7 @@
     <ClCompile Include="win_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="data_structures.h" />
     <ClInclude Include="exception.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="win_main.h" />
