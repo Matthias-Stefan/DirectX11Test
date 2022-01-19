@@ -62,6 +62,14 @@ Window::~Window()
 	DestroyWindow(m_WindowHandle);
 }
 
+void Window::SetTitle(const std::string& _Title)
+{
+	if (SetWindowText(m_WindowHandle, _Title.c_str()) == 0)
+	{
+		throw HWND_LAST_EXCEPT();
+	}
+}
+
 LRESULT CALLBACK Window::HandleMessageSetup(HWND _WindowHandle, 
 											UINT _Message, 
 											WPARAM _WParam, 
@@ -99,6 +107,7 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 {
 	switch (_Message)
 	{
+		/*********** KEYBOARD MESSAGES ***********/
 		case WM_CLOSE:
 		{
 			PostQuitMessage( 0 );
@@ -130,6 +139,129 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 			m_Keyboard.OnChar(static_cast<unsigned char>(_WParam));
 			break;
 		}
+		/*********** END KEYBOARD MESSAGES ***********/
+
+	/************* MOUSE MESSAGES ****************/
+		case WM_MOUSEMOVE:
+		{
+			const POINTS Point = MAKEPOINTS(_LParam);
+
+			if (Point.x >= 0 && Point.x < m_Width && 
+				Point.y >= 0 && Point.y < m_Height)
+			{
+				m_Mouse.OnMouseMove(Point.x, Point.y);
+				if (!m_Mouse.IsInWindow())
+				{
+					SetCapture(m_WindowHandle);
+					m_Mouse.OnMouseEnter();
+				}
+			}
+
+			else
+			{
+				if (_WParam & (MK_LBUTTON | MK_RBUTTON))
+				{
+					m_Mouse.OnMouseMove(Point.x, Point.y);
+				}
+				else
+				{
+					ReleaseCapture();
+					m_Mouse.OnMouseLeave();
+				}
+			}
+			break;
+		}
+		case WM_LBUTTONDOWN:
+		{
+			SetForegroundWindow(m_WindowHandle);
+
+			const POINTS Point = MAKEPOINTS(_LParam);
+			m_Mouse.OnLeftPressed(Point.x, Point.y);
+			break;
+		}
+		case WM_RBUTTONDOWN:
+		{
+			const POINTS Point = MAKEPOINTS(_LParam);
+			m_Mouse.OnRightPressed(Point.x, Point.y);
+			break;
+		}
+		case WM_LBUTTONUP:
+		{
+			const POINTS Point = MAKEPOINTS(_LParam);
+			m_Mouse.OnLeftReleased(Point.x, Point.y);
+
+			if (Point.x < 0 || Point.x >= m_Width || 
+				Point.y < 0 || Point.y >= m_Height)
+			{
+				ReleaseCapture();
+				m_Mouse.OnMouseLeave();
+			}
+			break;
+		}
+		case WM_RBUTTONUP:
+		{
+			const POINTS Point = MAKEPOINTS(_LParam);
+			m_Mouse.OnRightReleased(Point.x, Point.y);
+
+			if (Point.x < 0 || Point.x >= m_Width || 
+				Point.y < 0 || Point.y >= m_Height)
+			{
+				ReleaseCapture();
+				m_Mouse.OnMouseLeave();
+			}
+			break;
+		}
+		case WM_MOUSEWHEEL:
+		{
+
+			const POINTS Point = MAKEPOINTS(_LParam);
+			const int delta = GET_WHEEL_DELTA_WPARAM(_WParam);
+			m_Mouse.OnWheelDelta(Point.x, Point.y, delta);
+			break;
+		}
+		/************** END MOUSE MESSAGES **************/
+
+		/************** RAW MOUSE MESSAGES **************/
+		case WM_INPUT:
+		{
+			if (!m_Mouse.RawEnabled())
+			{
+				break;
+			}
+			UINT size;
+			// first get the size of the input data
+			if (GetRawInputData(
+				reinterpret_cast<HRAWINPUT>(_LParam),
+				RID_INPUT,
+				nullptr,
+				&size,
+				sizeof(RAWINPUTHEADER)) == -1)
+			{
+				// bail msg processing if error
+				break;
+			}
+			m_RawBuffer.resize(size);
+			// read in the input data
+			if (GetRawInputData(
+				reinterpret_cast<HRAWINPUT>(_LParam),
+				RID_INPUT,
+				m_RawBuffer.data(),
+				&size,
+				sizeof(RAWINPUTHEADER)) != size)
+			{
+				// bail msg processing if error
+				break;
+			}
+			// process the raw input data
+			auto& ri = reinterpret_cast<const RAWINPUT&>(*m_RawBuffer.data());
+			if (ri.header.dwType == RIM_TYPEMOUSE &&
+			   (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0))
+			{
+				m_Mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
+			}
+			break;
+		}
+		/************** END RAW MOUSE MESSAGES **************/
 	}	
 
 	return DefWindowProc(_WindowHandle, _Message, _WParam, _LParam);

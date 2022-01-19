@@ -2,6 +2,7 @@
 #include "win_main.h"
 #include "exception.h"
 #include "keyboard.h"
+#include "mouse.h"
 
 class Window
 {
@@ -10,6 +11,8 @@ public:
 	~Window();
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
+
+	void SetTitle(const std::string& _Title);
 
 private:
 	class WindowClass
@@ -34,11 +37,13 @@ private:
 	LRESULT HandleMessage(HWND _WindowHandle, UINT _Message, WPARAM _WParam, LPARAM _LParam);
 public:
 	Keyboard m_Keyboard;
-
+	Mouse m_Mouse;
 private:
 	int m_Width;
 	int m_Height;
 	HWND m_WindowHandle;
+	std::vector<BYTE> m_RawBuffer;
+	std::string m_CommandLine;
 
 public:
 	class WindowException : public Exception
@@ -56,7 +61,7 @@ public:
 	};
 };
 
-
+#define WND Window 
 
 #define HWND_EXCEPT( Handle ) Window::WindowException(__LINE__, __FILE__, Handle)
 #define HWND_LAST_EXCEPT() Window::WindowException(__LINE__, __FILE__, GetLastError())
