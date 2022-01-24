@@ -27,7 +27,10 @@ Window::Window(int _Width, int _Height, const char* _Name)
 		nullptr, 
 		WindowClass::GetInstance(), 
 		this);
+	
 	ShowWindow(m_WindowHandle, SW_SHOWDEFAULT);
+
+	m_pGFX = std::make_unique<Graphics>(m_WindowHandle, m_Width, m_Height);
 
 	if (m_WindowHandle == nullptr)
 	{
@@ -62,6 +65,11 @@ void Window::SetTitle(const std::string& _Title)
 	{
 		throw HWND_LAST_EXCEPT();
 	}
+}
+
+Graphics& Window::GFX()
+{
+	return *m_pGFX;
 }
 
 LRESULT CALLBACK Window::HandleMessageSetup(HWND _WindowHandle, 

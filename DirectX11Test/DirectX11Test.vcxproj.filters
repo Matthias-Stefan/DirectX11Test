@@ -22,6 +22,9 @@
     <ClCompile Include="timer.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="graphics.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="data_structures.h">
@@ -46,6 +49,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="timer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

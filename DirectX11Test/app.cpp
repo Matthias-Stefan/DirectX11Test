@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iomanip>
 
-App::App() : m_Window(800, 300, "DirectX11Test") {}
+App::App() : m_Window(800, 800, "DirectX11Test") {}
 
 int App::Execute()
 {
@@ -15,6 +15,8 @@ int App::Execute()
 		}
 		HandleInput();
 		ComputeFrame();
+
+		Sleep(1);
 	}
 }
 
@@ -29,4 +31,8 @@ void App::ComputeFrame()
 	std::ostringstream StringStream;
 	StringStream << "time elapsed: " << std::setprecision(1) << std::fixed << Time << "sec";
 	m_Window.SetTitle(StringStream.str());
+
+	const float c = cos(m_Timer.Peek()) / 2.0f + 0.5f;
+	m_Window.GFX().ClearBuffer(c, c, 1.0f);
+	m_Window.GFX().EndFrame();
 }

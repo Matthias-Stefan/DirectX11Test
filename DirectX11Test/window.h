@@ -3,6 +3,9 @@
 #include "exception.h"
 #include "keyboard.h"
 #include "mouse.h"
+#include "graphics.h"
+#include <optional>
+#include <memory>
 
 class Window
 {
@@ -14,6 +17,8 @@ public:
 
 	static std::optional<int> ProcessMessages();
 	void SetTitle(const std::string& _Title);
+
+	Graphics& GFX();
 
 private:
 	class WindowClass
@@ -42,6 +47,7 @@ public:
 private:
 	int m_Width;
 	int m_Height;
+	std::unique_ptr<Graphics> m_pGFX;
 	HWND m_WindowHandle;
 	std::vector<BYTE> m_RawBuffer;
 	std::string m_CommandLine;
