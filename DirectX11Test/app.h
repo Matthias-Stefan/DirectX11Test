@@ -10,6 +10,7 @@ public:
 	
 	int Execute();
 private:
+	void HandleInput();
 	void ComputeFrame();
 private:
 	WND m_Window;

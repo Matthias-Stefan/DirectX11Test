@@ -19,7 +19,9 @@
     <ClCompile Include="app.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="timer.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="data_structures.h">
@@ -43,7 +45,9 @@
     <ClInclude Include="app.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="timer.h" />
+    <ClInclude Include="timer.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">

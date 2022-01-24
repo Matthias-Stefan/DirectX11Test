@@ -7,22 +7,20 @@ App::App() : m_Window(800, 300, "DirectX11Test") {}
 
 int App::Execute()
 {
-	MSG Message;
-	BOOL Result;
-	while ((Result = GetMessage(&Message, nullptr, 0, 0)) > 0)
+	while (true)
 	{
-		TranslateMessage(&Message);
-		DispatchMessage(&Message);
-
+		if (const auto eCode = m_Window.ProcessMessages())
+		{
+			return *eCode;
+		}
+		HandleInput();
 		ComputeFrame();
 	}
+}
 
-	if (Result == -1)
-	{
-		throw HWND_LAST_EXCEPT();
-	}
+void App::HandleInput()
+{
 
-	return Message.wParam;
 }
 
 void App::ComputeFrame()

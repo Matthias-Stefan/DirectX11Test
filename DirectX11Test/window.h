@@ -12,6 +12,7 @@ public:
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 
+	static std::optional<int> ProcessMessages();
 	void SetTitle(const std::string& _Title);
 
 private:

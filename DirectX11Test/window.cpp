@@ -5,32 +5,12 @@
 
 Window::Window(int _Width, int _Height, const char* _Name)
 {
-	try
-	{
-		// invoke App.Go()
-		// return EXIT_SUCCESS;
-	}
-	catch (const WindowException& Except)
-	{
-		MessageBox(nullptr, Except.what(), Except.GetType(), MB_OK | MB_ICONEXCLAMATION);
-	}
-	catch (const std::exception& Except)
-	{
-		MessageBox(nullptr, Except.what(), "Standard Exception", MB_OK | MB_ICONEXCLAMATION);
-	}
-	catch (...)
-	{
-		MessageBox(nullptr, "No details available", "Unknown Exception", MB_OK | MB_ICONEXCLAMATION);
-	}
-
-	// return EXIT_FAILURE; 
-
 	RECT WindowRect;
 	WindowRect.left = 100;
 	WindowRect.right = _Width + WindowRect.left;
 	WindowRect.top = 100;
 	WindowRect.bottom = _Height + WindowRect.top;
-	if(FAILED(AdjustWindowRect(&WindowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE)))
+	if(AdjustWindowRect(&WindowRect, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE) == 0)
 	{
 		throw HWND_LAST_EXCEPT();
 	}
@@ -53,13 +33,27 @@ Window::Window(int _Width, int _Height, const char* _Name)
 	{
 		throw HWND_LAST_EXCEPT();
 	}
-
-
 }
 
 Window::~Window()
 {
 	DestroyWindow(m_WindowHandle);
+}
+
+std::optional<int> Window::ProcessMessages()
+{
+	MSG Message;
+	while (PeekMessage(&Message, 0, 0, 0, PM_REMOVE))
+	{
+		if (Message.message == WM_QUIT)
+		{
+			return (int)Message.wParam;
+		}
+
+		TranslateMessage(&Message);
+		DispatchMessage(&Message);
+	}
+	return {};
 }
 
 void Window::SetTitle(const std::string& _Title)
@@ -110,9 +104,13 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 		/*********** KEYBOARD MESSAGES ***********/
 		case WM_CLOSE:
 		{
-			PostQuitMessage( 0 );
+			DestroyWindow(_WindowHandle);
 			return 0;
 		}
+		case WM_DESTROY:
+		{
+			PostQuitMessage(0);
+		} break;
 		case WM_KILLFOCUS:
 		{
 			m_Keyboard.ClearState();
@@ -173,8 +171,6 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 		}
 		case WM_LBUTTONDOWN:
 		{
-			SetForegroundWindow(m_WindowHandle);
-
 			const POINTS Point = MAKEPOINTS(_LParam);
 			m_Mouse.OnLeftPressed(Point.x, Point.y);
 			break;
@@ -213,7 +209,6 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 		}
 		case WM_MOUSEWHEEL:
 		{
-
 			const POINTS Point = MAKEPOINTS(_LParam);
 			const int delta = GET_WHEEL_DELTA_WPARAM(_WParam);
 			m_Mouse.OnWheelDelta(Point.x, Point.y, delta);
@@ -222,6 +217,7 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 		/************** END MOUSE MESSAGES **************/
 
 		/************** RAW MOUSE MESSAGES **************/
+#if false
 		case WM_INPUT:
 		{
 			if (!m_Mouse.RawEnabled())
@@ -229,7 +225,6 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 				break;
 			}
 			UINT size;
-			// first get the size of the input data
 			if (GetRawInputData(
 				reinterpret_cast<HRAWINPUT>(_LParam),
 				RID_INPUT,
@@ -237,11 +232,9 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 				&size,
 				sizeof(RAWINPUTHEADER)) == -1)
 			{
-				// bail msg processing if error
 				break;
 			}
 			m_RawBuffer.resize(size);
-			// read in the input data
 			if (GetRawInputData(
 				reinterpret_cast<HRAWINPUT>(_LParam),
 				RID_INPUT,
@@ -249,10 +242,8 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 				&size,
 				sizeof(RAWINPUTHEADER)) != size)
 			{
-				// bail msg processing if error
 				break;
 			}
-			// process the raw input data
 			auto& ri = reinterpret_cast<const RAWINPUT&>(*m_RawBuffer.data());
 			if (ri.header.dwType == RIM_TYPEMOUSE &&
 			   (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0))
@@ -261,6 +252,7 @@ LRESULT Window::HandleMessage(HWND _WindowHandle,
 			}
 			break;
 		}
+#endif
 		/************** END RAW MOUSE MESSAGES **************/
 	}	
 
