@@ -25,6 +25,9 @@
     <ClCompile Include="graphics.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="dxerr.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="data_structures.h">
@@ -54,6 +57,9 @@
     <ClInclude Include="graphics.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="dxerr.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">
@@ -62,5 +68,10 @@
     <Filter Include="Source">
       <UniqueIdentifier>{fbac6292-4825-4b56-9cdd-09456b66fd2e}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DXGetErrorDescription.inl" />
+    <None Include="DXGetErrorString.inl" />
+    <None Include="DXTrace.inl" />
   </ItemGroup>
 </Project>
